@@ -30,6 +30,12 @@ namespace DittoMauiTasksApp.ViewModels
         {
             string taskData = await popupService.DisplayPromptAsync("Add Task", "Add a new task:");
 
+            if (taskData == null)
+            {
+                //nothing was entered. 
+                return; 
+            }
+
             var dict = new Dictionary<string, object>
             {
                 {"body", taskData},
