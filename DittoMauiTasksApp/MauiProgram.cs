@@ -31,8 +31,8 @@ public static class MauiProgram
 
     private static Ditto SetupDitto()
     {
-        var workingDir = $"{FileSystem.AppDataDirectory}/ditto";
-        var ditto = new Ditto(DittoIdentity.OnlinePlayground("YOUR_APP_ID", "YOUR_TOKEN", true), workingDir);
+        var ditto = new Ditto(DittoIdentity.OnlinePlayground("YOUR_APP_ID", "YOUR_TOKEN", true));
+        ditto.DisableSyncWithV3();
         ditto.StartSync();
 
         return ditto;

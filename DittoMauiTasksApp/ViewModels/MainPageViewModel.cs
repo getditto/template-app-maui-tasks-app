@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.ObjectModel;
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DittoMauiTasksApp.Utils;
@@ -11,8 +12,6 @@ namespace DittoMauiTasksApp.ViewModels
     {
         private readonly Ditto ditto;
         private readonly IPopupService popupService;
-        private DittoLiveQuery liveQuery;
-        private DittoSubscription subscription;
 
         [ObservableProperty]
         ObservableCollection<DittoTask> tasks;
@@ -43,32 +42,35 @@ namespace DittoMauiTasksApp.ViewModels
                 { "isDeleted", false }
             };
 
-            ditto.Store[DittoTask.CollectionName].Upsert(dict);
+            await ditto.Store.ExecuteAsync($"INSERT INTO {DittoTask.CollectionName} DOCUMENTS (:doc1)", new Dictionary<string, object>()
+            {
+                { "doc1", dict }
+            });
         }
 
         [RelayCommand]
         private void DeleteTask(DittoTask task)
         {
-            ditto.Store[DittoTask.CollectionName].FindById(task.Id).Update((mutableDoc) =>
-            {
-                if (mutableDoc == null) return;
-                mutableDoc["isDeleted"].Set(true);
-            });
+            var updateQuery = $"UPDATE {DittoTask.CollectionName} " +
+                "SET isDeleted = true " +
+                $"WHERE _id = '{task.Id}'";
+            ditto.Store.ExecuteAsync(updateQuery);
         }
 
         private void ObserveDittoTasksCollection()
         {
-            subscription = ditto.Store[DittoTask.CollectionName].Find("!isDeleted").Subscribe();
-            liveQuery = ditto.Store[DittoTask.CollectionName].Find("!isDeleted").ObserveLocal((docs, dittoEvent) =>
+            var query = $"SELECT * FROM {DittoTask.CollectionName} WHERE isDeleted = false";
+
+            ditto.Sync.RegisterSubscription(query);
+            ditto.Store.RegisterObserver(query, storeObservationHandler: async (queryResult) =>
             {
-                if (dittoEvent is DittoLiveQueryEvent.Update updateEvent)
+                Tasks = new ObservableCollection<DittoTask>(queryResult.Items.ConvertAll(d =>
                 {
-                    System.Diagnostics.Debug.WriteLine($"{docs.Count()} - {dittoEvent.GetType()} - {updateEvent.Deletions} - {updateEvent.Moves} - {updateEvent.Insertions}");
-                }
-                Tasks = new ObservableCollection<DittoTask>(docs.ConvertAll(d => new DittoTask(d)));
+                    return JsonSerializer.Deserialize<DittoTask>(d.JsonString());
+                }));
             });
 
-            ditto.Store[DittoTask.CollectionName].Find("isDeleted == true").Evict();
+            ditto.Store.ExecuteAsync($"EVICT FROM {DittoTask.CollectionName} WHERE isDeleted = false");
         }
     }
 }

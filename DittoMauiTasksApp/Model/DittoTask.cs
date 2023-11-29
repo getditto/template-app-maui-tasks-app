@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DittoSDK;
 
 namespace DittoMauiTasksApp
@@ -8,33 +9,25 @@ namespace DittoMauiTasksApp
         public const string CollectionName = "tasks";
 
         [ObservableProperty]
+        [property: JsonPropertyName("_id")]
         string id;
 
         [ObservableProperty]
+        [property: JsonPropertyName("body")]
         string body;
 
         [ObservableProperty]
+        [property: JsonPropertyName("isCompleted")]
         bool isCompleted;
-
-        public DittoTask(DittoDocument document)
-        {
-            id = document["_id"].StringValue;
-            body = document["body"].StringValue;
-            isCompleted = document["isCompleted"].BooleanValue;
-        }
 
         partial void OnIsCompletedChanged(bool value)
         {
             var ditto = Utils.ServiceProvider.GetService<Ditto>();
-            var collection = ditto.Store[CollectionName];
 
-            collection.FindById(Id).Update(mutableDoc =>
-            {
-                if (mutableDoc["isCompleted"].BooleanValue != IsCompleted)
-                {
-                    mutableDoc["isCompleted"].Set(IsCompleted);
-                }
-            });
+            var updateQuery = $"UPDATE {CollectionName} " +
+                $"SET isCompleted = {value} " +
+                $"WHERE _id = '{Id}' AND isCompleted != {value}";
+            ditto.Store.ExecuteAsync(updateQuery);
         }
     }
 }
