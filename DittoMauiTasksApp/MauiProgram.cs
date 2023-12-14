@@ -21,7 +21,7 @@ public static class MauiProgram
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
-
+        builder.Services.AddSingleton(SetupDitto());
         builder.Services.AddSingleton<IPopupService, PopupService>();
         builder.Services.AddTransient<TasksPageviewModel>();
         builder.Services.AddTransient<TasksPage>();
@@ -29,4 +29,14 @@ public static class MauiProgram
 		return builder.Build();
 	}
 
+
+    private static Ditto SetupDitto()
+    {
+        var ditto = new Ditto(DittoIdentity.OnlinePlayground("YOUR_APP_ID", "YOUR_TOKEN", true));
+        ditto.DisableSyncWithV3();
+        ditto.StartSync();
+
+        return ditto;
+    }
 }
+

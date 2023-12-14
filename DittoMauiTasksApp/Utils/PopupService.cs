@@ -7,7 +7,8 @@ namespace DittoMauiTasksApp.Utils
         public Task<string> DisplayPromptAsync(string title, string message)
         {
             Page page = Application.Current?.MainPage;
-            return page?.DisplayPromptAsync(title, message);
+            return page.DisplayPromptAsync(title, message);
         }
     }
 }
+
