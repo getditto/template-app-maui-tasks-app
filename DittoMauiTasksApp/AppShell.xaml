@@ -11,5 +11,10 @@
         ContentTemplate="{DataTemplate local:TasksPage}"
         Route="MainPage" />
 
+    <ShellContent
+        Title="Presence Viewer"
+        ContentTemplate="{DataTemplate local:PresenceViewerPage}"
+        Route="PresenceViewerPage" />
+
 </Shell>
 
