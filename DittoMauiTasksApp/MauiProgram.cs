@@ -25,10 +25,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<IPopupService, PopupService>();
         builder.Services.AddTransient<TasksPageviewModel>();
         builder.Services.AddTransient<TasksPage>();
-		
-		return builder.Build();
-	}
+        builder.Services.AddTransient<PresenceViewerPage>();
 
+        return builder.Build();
+    }
 
     private static Ditto SetupDitto()
     {
