@@ -16,8 +16,6 @@ namespace DittoMauiTasksApp.ViewModels
         [ObservableProperty]
         ObservableCollection<DittoTask> tasks;
 
-        DittoPresenceObserver presenceObserver;
-
         public TasksPageviewModel(Ditto ditto, IPopupService popupService)
         {
             this.ditto = ditto;
@@ -25,21 +23,10 @@ namespace DittoMauiTasksApp.ViewModels
 
             PermissionHelper.CheckPermissions().ContinueWith(async t =>
             {
-                var result = await t;
-
                 ditto.DisableSyncWithV3();
                 ditto.StartSync();
 
                 ObserveDittoTasksCollection();
-            });
-
-            presenceObserver = this.ditto.Presence.Observe(s =>
-            {
-                System.Diagnostics.Debug.WriteLine(" - - DittoPresenceObserver Callback ");
-                foreach (var peer in s.LocalPeer.Connections)
-                {
-                    System.Diagnostics.Debug.WriteLine($"{peer.ConnectionType} - {BitConverter.ToString(peer.Peer1)} - {BitConverter.ToString(peer.Peer2)}");
-                }
             });
         }
 
