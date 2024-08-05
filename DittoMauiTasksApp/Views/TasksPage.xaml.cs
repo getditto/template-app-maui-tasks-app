@@ -10,4 +10,9 @@ public partial class TasksPage : ContentPage
 
         BindingContext = viewModel; 
     }
+
+    void SettingsClicked(System.Object sender, System.EventArgs e)
+    {
+        Shell.Current.GoToAsync("//PresenceViewerPage");
+    }
 }
