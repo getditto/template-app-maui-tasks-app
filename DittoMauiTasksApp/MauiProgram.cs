@@ -28,7 +28,7 @@ public static class MauiProgram
         builder.Services.AddTransient<PresenceViewerPage>();
 
         return builder.Build();
-	}
+    }
 
     private static Ditto SetupDitto()
     {
