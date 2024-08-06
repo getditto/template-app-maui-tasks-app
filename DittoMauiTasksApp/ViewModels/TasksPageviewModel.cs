@@ -21,7 +21,13 @@ namespace DittoMauiTasksApp.ViewModels
             this.ditto = ditto;
             this.popupService = popupService;
 
-            ObserveDittoTasksCollection();
+            PermissionHelper.CheckPermissions().ContinueWith(async t =>
+            {
+                ditto.DisableSyncWithV3();
+                ditto.StartSync();
+
+                ObserveDittoTasksCollection();
+            });
         }
 
         [RelayCommand]
@@ -74,4 +80,3 @@ namespace DittoMauiTasksApp.ViewModels
         }
     }
 }
-
